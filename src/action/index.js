@@ -19,3 +19,11 @@ export const decrement = (payload)=>{
     }
   }
 }
+
+export const incrementAsync = (payload)=>{ //异步action
+  return dispatch => { //拦截dispatch
+    setTimeout(()=>{
+      dispatch(increment()) //等待异步请求结束后，手动进行dispatch派发
+    },2000)
+  }
+}

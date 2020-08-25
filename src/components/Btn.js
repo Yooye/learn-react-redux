@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 // import store from '../store'
-import {increment,decrement} from '../action' //引入actionCreator
+import {increment,decrement} from '../action' //【1】引入actionCreator
 import {connect} from 'react-redux'
 
 class Btn extends Component {
@@ -11,7 +11,7 @@ class Btn extends Component {
     return (
       <div>
         <button onClick={()=>{
-          children==='+'?increment():decrement()
+          children==='+'?increment():decrement() //【3】直接使用已经变成dispatch的actionCreator
         }}>{children}</button>
       </div>
     )
@@ -19,6 +19,6 @@ class Btn extends Component {
 }
 
 // export default Btn
-export default connect(null,{increment,decrement})(Btn)
+export default connect(null,{increment,decrement})(Btn) //【2】通过actionCreator结合引用dispatch
 //increment、decrement在传入connect之前，只是一个actionCreator
 //increment、decrement在传入connect之后，变成了一个跟action互相对应的dispatch

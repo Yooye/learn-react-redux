@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import Num from './components/Num'
 import Btn from './components/Btn'
+import AsyncBtn from './components/AsyncBtn'
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Btn>-</Btn>
       <Num/>
       <Btn>+</Btn>
+      <AsyncBtn/>
     </div>
   );
 }
