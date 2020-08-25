@@ -1,68 +1,159 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 一、React项目中状态管理方式
 
-## Available Scripts
+1. 单独使用Redux
+> 数据的初始化绑定getState
+> 数据的实时更新需要subscribe
 
-In the project directory, you can run:
+2. Redux、React-Redux实现
+> 不需要订阅，绑定后自动更新
 
-### `yarn start`
+3. 使用演示的分支
+> learn-react-redux
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+# 二、ActionCreator模块
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+1. 不提取ActionCreator模块，如何派发action
+```
+store.dispatch({
+  type:'action名称'
+})
+```
 
-### `yarn test`
+2. ActionCreator作用
+> 本质是一个函数，作用是生成action，给dispatch使用
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `yarn build`
+# 三、redux与react-redux结合实现状态管理
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+[react-redux](https://react-redux.js.org/introduction/quick-start)
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+1. 安装redux、react-redux
+```
+cnpm i redux react-redux -S
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. 在根组件通过Provider全局注入store状态机
+> 项目入口文件index.js
+```
+  import {Provider} from 'react-redux'
+  import store from './store'
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    document.getElementById('root')
+  );
+```
 
-### `yarn eject`
+3. 在需要使用store状态机数据的组件中，通过connect引用state
+> 参考components/Num.js
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+4. 在需要修改store状态机数据的组件中，通过connect引用dispacth
+> 参考components/Btn.js
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  + 事先actionCreator准备好
+  + Btn组件中引入actionCreator
+  + connect(null,{...actionCreator})(Btn) 将actionCreator转换为响应的disptch
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+# 四、异步action
+> redux-thunk
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+同步action
+store <-- reducer<--【自动dispatch】<-- 同步actionCreator <-- view
+                          |
+                      react-redux
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+异步action
+store<--reducer <--手动dispatch<--【拦截dispatch】<-- 异步actionCreator<-- view
+                                      |
+                                  redux-thunk
 
-### Code Splitting
+# 五、redux-thunk异步中间件的使用流程
+[文档](https://www.npmjs.com/package/redux-thunk)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+1. 安装
+```
+cnpm i redux-thunk -S
+```
 
-### Analyzing the Bundle Size
+2. 通过加入redux-thunk的方式使得store状态机可以进行异步操作
+> store/index.js
+```
+import {createStore,applyMiddleware} from 'redux'
+import thunk from 'redux-thunk'
+import reducer from '../reducer'
+const store = createStore(reducer,applyMiddleware(thunk))
+export default store
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+3. 在actionCretor模块中，新增异步action
+```
+export const incrementAsync = (payload)=>{ //异步action
+  return dispatch => { //【1】拦截dispatch，方法劫持
+    setTimeout(()=>{
+      dispatch(increment()) //【2】等待异步请求结束后，手动进行dispatch派发
+    },2000)
+  }
+}
+```
 
-### Making a Progressive Web App
+4. 在组件内部触发异步action
+> components/AsyncBtn.js
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
 
-### Advanced Configuration
+# 六、任务
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+1. redux基本使用流程
+  + createStore 定义store状态机  
+  + store.getState()  
+  + store.dispatch({  //向store的reducer派发action
+    type:'increment'
+  })
 
-### Deployment
+  + store.subscribe()
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+  + reducer  银行内部的数据操作
 
-### `yarn build` fails to minify
+2. react-redux的使用
+> 让我们更方便的在react中使用redux
+  + 根组件注入store
+  + 在组件中使用connect获取状态机中的 【数据】跟【方法】
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+3. redux-thunk实现异步action
+  + 如何让状态机支持异步action？
+  + 如何定义一个异步action？
+  + 异步action跟同步action之间的区别及联系？
+
+
+4. 超级记忆术
+一休  1. 香蕉
+鸭子  2. 牛肉粉
+耳朵  3. 抽烟
+红旗  4. 桌子 
+
+
+## 七、React状态管理方案
+
+1. Redux  【几乎不会单独使用】
+
+2. Redux、React-Redux 【可以选择】
+
+3. Redux、React-Redux、Redux-Thunk 【可以选择】
+
+4. Redux、React-Redux、@rematch/core 【可以选择】
+
+5. Redux、React-Redux、dva 【可以选择】
+
+
+## 八、其他协助使用状态管理的集成库
+> 部分开发者认为，Redux+react-redux还有点麻烦
+1. dva
+
+2. @rematch/core
+[rematch与redux使用对比](https://rematch.gitbook.io/handbook/mu-de)
+[npm地址](https://www.npmjs.com/package/@rematch/core)
+
+## 九、@rematch/core使用流程
+> 参考 day01/learn-react-redux文件夹   learn-rematch01分支
